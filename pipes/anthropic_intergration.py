@@ -9,14 +9,15 @@ license: MIT
 environment_variables:
     - ANTHROPIC_API_KEY (required)
 """
-import os
-import requests
 import json
-import time
 import logging
-from typing import List, Union, Generator, Iterator, Dict, Any
-from pydantic import BaseModel, Field
+import os
+import time
+from typing import Any, Dict, Generator, Iterator, List, Union
+
+import requests
 from open_webui.utils.misc import pop_system_message
+from pydantic import BaseModel, Field
 
 
 class Pipe:
