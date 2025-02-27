@@ -6,8 +6,8 @@ This guide explains how to integrate **Anthropic** and **DeepSeek** chat and ima
 
 You can easily add the integrations to OpenWebUI by visiting the following links and pressing the **Get** button:
 
-- **Anthropic Integration**: [Get Anthropic](https://openwebui.com/f/pescheckbram/anthropic_integration_chat_and_image)
-- **Deepseek Integration**: [Get Deepseek](https://openwebui.com/f/pescheckbram/deepseek_intergration_chat_and_image)
+- **Anthropic Integration**: [Get Anthropic](https://openwebui.com/f/pescheckbram/deepseek_intergration_chat)
+- **Deepseek Integration**: [Get Deepseek](https://openwebui.com/f/pescheckbram/anthropic_integration_chat)
 
 For all your submissions and updates, visit:
 - **Open WebUI Main Page**: [OpenWebUI Submissions](https://openwebui.com/u/pescheckbram)
