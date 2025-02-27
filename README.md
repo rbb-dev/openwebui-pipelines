@@ -33,7 +33,7 @@ Once added, you can access Anthropic and DeepSeek models inside OpenWebUI by sel
 - `deepseek-chat`
 - `deepseek-reasoner`
 
-You can now use these models for chat and image processing!
+You can now use these models for chat processing!
 
 ---
 
