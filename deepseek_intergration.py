@@ -1,5 +1,5 @@
 """
-title: Deepseek Intergration Chat and Image
+title: Deepseek Intergration Chat
 authors: brammittendorff
 author_url: https://github.com/brammittendorff/openwebui-pipelines
 funding_url: https://github.com/open-webui

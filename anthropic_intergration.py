@@ -1,5 +1,5 @@
 """
-title: Anthropic Integration Chat and Image
+title: Anthropic Integration Chat
 authors: brammittendorff
 author_url: https://github.com/brammittendorff/openwebui-pipelines
 funding_url: https://github.com/open-webui
