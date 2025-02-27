@@ -3,12 +3,14 @@ title: Anthropic Integration Chat
 authors: brammittendorff
 author_url: https://github.com/brammittendorff/openwebui-pipelines
 funding_url: https://github.com/open-webui
-version: 0.0.1
+version: 0.0.2
+requirements: requests, pydantic
 required_open_webui_version: 0.3.20
 license: MIT
 environment_variables:
     - ANTHROPIC_API_KEY (required)
 """
+
 import json
 import logging
 import os

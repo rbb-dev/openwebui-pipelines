@@ -1,5 +1,3 @@
-I think we should expand the README to provide more details about all three integrations, including the Cost Tracker. Here's a revised version:
-
 # OpenWebUI - Anthropic, DeepSeek & Cost Tracking Integrations
 
 This repository provides three powerful integrations for OpenWebUI:
