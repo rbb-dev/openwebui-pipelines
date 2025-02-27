@@ -1,5 +1,5 @@
 """
-title: Cost Tracker by Chat
+title: Live Cost Tracker when Chatting
 description: Manages and calculates costs for model usage in the Chat
 authors: brammittendorff
 author_url: https://github.com/brammittendorff/openwebui-pipelines
