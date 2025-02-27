@@ -1,8 +1,10 @@
 """
-title: Cost Tracker
-description: Manages and calculates costs for model usage in an Open WebUI
-author: maki
-version: 1.0.0
+title: Cost Tracker by Chat
+description: Manages and calculates costs for model usage in the Chat
+authors: brammittendorff
+author_url: https://github.com/brammittendorff/openwebui-pipelines
+funding_url: https://github.com/open-webui
+version: 0.0.1
 license: MIT
 requirements: requests, tiktoken, cachetools, pydantic
 environment_variables:
@@ -24,269 +26,29 @@ import tiktoken
 from cachetools import TTLCache, cached
 from pydantic import BaseModel, Field
 
-DEFAULT_MODEL_PRICING = {
-    "anthropic/claude-3-haiku": {
-        "input_cost_per_token": 0.000003,
-        "output_cost_per_token": 0.000015,
-    },
-    "anthropic_integration_chat.claude-3-haiku-20240307": {
-        "input_cost_per_token": 0.000003,
-        "output_cost_per_token": 0.000015,
-    },
-
-    "anthropic/claude-3-opus": {
-        "input_cost_per_token": 0.000003,
-        "output_cost_per_token": 0.000015,
-    },
-    "anthropic_integration_chat.claude-3-opus-20240229": {
-        "input_cost_per_token": 0.000003,
-        "output_cost_per_token": 0.000015,
-    },
-
-    "anthropic/claude-3-sonnet": {
-        "input_cost_per_token": 0.000003,
-        "output_cost_per_token": 0.000015,
-    },
-    "anthropic_integration_chat.claude-3-sonnet-20240229": {
-        "input_cost_per_token": 0.000003,
-        "output_cost_per_token": 0.000015,
-    },
-
-    "anthropic/claude-3.5-haiku": {
-        "input_cost_per_token": 0.000003,
-        "output_cost_per_token": 0.000015,
-    },
-    "anthropic_integration_chat.claude-3-5-haiku-20241022": {
-        "input_cost_per_token": 0.000003,
-        "output_cost_per_token": 0.000015,
-    },
-    "anthropic_integration_chat.claude-3-5-haiku-latest": {
-        "input_cost_per_token": 0.000003,
-        "output_cost_per_token": 0.000015,
-    },
-    "anthropic/claude-3.5-sonnet": {
-        "input_cost_per_token": 0.000003,
-        "output_cost_per_token": 0.000015,
-    },
-    "anthropic_integration_chat.claude-3-5-sonnet-20240620": {
-        "input_cost_per_token": 0.000003,
-        "output_cost_per_token": 0.000015,
-    },
-    "anthropic_integration_chat.claude-3-5-sonnet-20241022": {
-        "input_cost_per_token": 0.000003,
-        "output_cost_per_token": 0.000015,
-    },
-    "anthropic_integration_chat.claude-3-5-sonnet-latest": {
-        "input_cost_per_token": 0.000003,
-        "output_cost_per_token": 0.000015,
-    },
-    "anthropic/claude-3.7-sonnet": {
-        "input_cost_per_token": 0.000003,
-        "output_cost_per_token": 0.000015,
-    },
-    "anthropic_integration_chat.claude-3-7-sonnet-20250219": {
-        "input_cost_per_token": 0.000003,
-        "output_cost_per_token": 0.000015,
-    },
-    "anthropic_integration_chat.claude-3-7-sonnet-latest": {
-        "input_cost_per_token": 0.000003,
-        "output_cost_per_token": 0.000015,
-    },
-    "chatgpt-4o-latest": {
-        "input_cost_per_token": 0.00003,
-        "output_cost_per_token": 0.00006,
-    },
-    "gpt-3.5-turbo": {
-        "input_cost_per_token": 0.0000015,
-        "output_cost_per_token": 0.000002,
-    },
-    "gpt-3.5-turbo-0125": {
-        "input_cost_per_token": 0.0000015,
-        "output_cost_per_token": 0.000002,
-    },
-    "gpt-3.5-turbo-1106": {
-        "input_cost_per_token": 0.0000015,
-        "output_cost_per_token": 0.000002,
-    },
-    "gpt-3.5-turbo-16k": {
-        "input_cost_per_token": 0.0000015,
-        "output_cost_per_token": 0.000002,
-    },
-    "gpt-3.5-turbo-instruct": {
-        "input_cost_per_token": 0.0000015,
-        "output_cost_per_token": 0.000002,
-    },
-    "gpt-3.5-turbo-instruct-0914": {
-        "input_cost_per_token": 0.0000015,
-        "output_cost_per_token": 0.000002,
-    },
-    "gpt-4": {
-        "input_cost_per_token": 0.00003,
-        "output_cost_per_token": 0.00006,
-    },
-    "gpt-4-0125-preview": {
-        "input_cost_per_token": 0.00003,
-        "output_cost_per_token": 0.00006,
-    },
-    "gpt-4-0613": {
-        "input_cost_per_token": 0.00003,
-        "output_cost_per_token": 0.00006,
-    },
-    "gpt-4-1106-preview": {
-        "input_cost_per_token": 0.00003,
-        "output_cost_per_token": 0.00006,
-    },
-    "gpt-4-turbo": {
-        "input_cost_per_token": 0.00003,
-        "output_cost_per_token": 0.00006,
-    },
-    "gpt-4-turbo-2024-04-09": {
-        "input_cost_per_token": 0.00003,
-        "output_cost_per_token": 0.00006,
-    },
-    "gpt-4-turbo-preview": {
-        "input_cost_per_token": 0.00003,
-        "output_cost_per_token": 0.00006,
-    },
-    "gpt-4o": {
-        "input_cost_per_token": 0.00003,
-        "output_cost_per_token": 0.00006,
-    },
-    "gpt-4o-2024-05-13": {
-        "input_cost_per_token": 0.00003,
-        "output_cost_per_token": 0.00006,
-    },
-    "gpt-4o-2024-08-06": {
-        "input_cost_per_token": 0.00003,
-        "output_cost_per_token": 0.00006,
-    },
-    "gpt-4o-2024-11-20": {
-        "input_cost_per_token": 0.00003,
-        "output_cost_per_token": 0.00006,
-    },
-    "gpt-4o-audio-preview": {
-        "input_cost_per_token": 0.00003,
-        "output_cost_per_token": 0.00006,
-    },
-    "gpt-4o-audio-preview-2024-10-01": {
-        "input_cost_per_token": 0.00003,
-        "output_cost_per_token": 0.00006,
-    },
-    "gpt-4o-audio-preview-2024-12-17": {
-        "input_cost_per_token": 0.00003,
-        "output_cost_per_token": 0.00006,
-    },
-    "gpt-4o-mini": {
-        "input_cost_per_token": 0.00003,
-        "output_cost_per_token": 0.00006,
-    },
-    "gpt-4o-mini-2024-07-18": {
-        "input_cost_per_token": 0.00003,
-        "output_cost_per_token": 0.00006,
-    },
-    "gpt-4o-mini-audio-preview": {
-        "input_cost_per_token": 0.00003,
-        "output_cost_per_token": 0.00006,
-    },
-    "gpt-4o-mini-audio-preview-2024-12-17": {
-        "input_cost_per_token": 0.00003,
-        "output_cost_per_token": 0.00006,
-    },
-    "gpt-4o-mini-realtime-preview": {
-        "input_cost_per_token": 0.00003,
-        "output_cost_per_token": 0.00006,
-    },
-    "gpt-4o-mini-realtime-preview-2024-12-17": {
-        "input_cost_per_token": 0.00003,
-        "output_cost_per_token": 0.00006,
-    },
-    "gpt-4o-realtime-preview": {
-        "input_cost_per_token": 0.00003,
-        "output_cost_per_token": 0.00006,
-    },
-    "gpt-4o-realtime-preview-2024-10-01": {
-        "input_cost_per_token": 0.00003,
-        "output_cost_per_token": 0.00006,
-    },
-    "gpt-4o-realtime-preview-2024-12-17": {
-        "input_cost_per_token": 0.00003,
-        "output_cost_per_token": 0.00006,
-    },
-    "o1": {
-        "input_cost_per_token": 0.00003,
-        "output_cost_per_token": 0.00006,
-    },
-    "o1-2024-12-17": {
-        "input_cost_per_token": 0.00003,
-        "output_cost_per_token": 0.00006,
-    },
-    "o1-mini": {
-        "input_cost_per_token": 0.00003,
-        "output_cost_per_token": 0.00006,
-    },
-    "o1-mini-2024-09-12": {
-        "input_cost_per_token": 0.00003,
-        "output_cost_per_token": 0.00006,
-    },
-    "o1-preview": {
-        "input_cost_per_token": 0.00003,
-        "output_cost_per_token": 0.00006,
-    },
-    "o1-preview-2024-09-12": {
-        "input_cost_per_token": 0.00003,
-        "output_cost_per_token": 0.00006,
-    },
-    "o3-mini": {
-        "input_cost_per_token": 0.00003,
-        "output_cost_per_token": 0.00006,
-    },
-    "o3-mini-2025-01-31": {
-        "input_cost_per_token": 0.00003,
-        "output_cost_per_token": 0.00006,
-    },
-    "omni-moderation-2024-09-26": {
-        "input_cost_per_token": 0.0,
-        "output_cost_per_token": 0.0,
-    },
-    "omni-moderation-latest": {
-        "input_cost_per_token": 0.0,
-        "output_cost_per_token": 0.0,
-    },
-    "deepseek/deepseek-chat": {
-        "input_cost_per_token": 0.00000055,
-        "output_cost_per_token": 0.00000219,
-    },
-    "deepseek_intergration_chat.deepseek-chat": {
-        "input_cost_per_token": 0.00000055,
-        "output_cost_per_token": 0.00000219,
-    },
-    "deepseek/deepseek-reasoner": {
-        "input_cost_per_token": 0.00000055,
-        "output_cost_per_token": 0.00000219,
-    },
-    "deepseek_intergration_chat.deepseek-reasoner": {
-        "input_cost_per_token": 0.00000055,
-        "output_cost_per_token": 0.00000219,
-    },
-}
-
+# REMOVED the entire DEFAULT_MODEL_PRICING dictionary.
 
 class Config:
     DATA_DIR = "data"
     CACHE_DIR = os.path.join(DATA_DIR, ".cache")
     USER_COST_FILE = os.path.join(DATA_DIR, f"costs-{datetime.now().year}.json")
 
-    # If you want to fetch from a remote URL, specify it here
-    REMOTE_JSON_URL = "https://raw.githubusercontent.com/BerriAI/litellm/main/model_prices_and_context_window.json"
+    # Use the new remote JSON with model pricing
+    REMOTE_JSON_URL = (
+        "https://raw.githubusercontent.com/"
+        "brammittendorff/openwebui-pipelines/refs/heads/main/json/model_pricing.json"
+    )
 
     CACHE_TTL = 432000  # e.g., 5 days
     CACHE_MAXSIZE = 8
     DECIMALS = "0.00000001"
     DEBUG = False
 
+
 def debug_print(msg: str):
     if Config.DEBUG:
         print("[COST TRACKER DEBUG] " + msg)
+
 
 def get_encoding_for_model(model_name: str):
     """
@@ -342,6 +104,7 @@ class UserCostManager:
         })
         self._write_costs(costs_data)
 
+
 cache = TTLCache(maxsize=Config.CACHE_MAXSIZE, ttl=Config.CACHE_TTL)
 
 
@@ -350,7 +113,7 @@ class ModelCostManager:
 
     def __init__(self, remote_url: str, fallback_dict: dict):
         self.remote_url = remote_url
-        self.fallback_dict = fallback_dict
+        self.fallback_dict = fallback_dict  # now empty
         self.cached_data = None  # Will store the remote JSON data (if downloaded)
         self.cache_file = os.path.join(Config.CACHE_DIR, "model_prices.json")
         os.makedirs(Config.CACHE_DIR, exist_ok=True)
@@ -375,9 +138,8 @@ class ModelCostManager:
         """
         Return the cost data for a specific model. 
         1) Try remote data 
-        2) If not found, fallback to DEFAULT_MODEL_PRICING.
+        2) If not found, fallback to empty => zero cost
         """
-        # 1) Attempt to load remote data
         if not self.cached_data:
             with self._lock:
                 if not self.cached_data:
@@ -387,11 +149,8 @@ class ModelCostManager:
         if self.cached_data and model in self.cached_data:
             return self.cached_data[model]
 
-        # 2) Otherwise fallback
-        if model in self.fallback_dict:
-            return self.fallback_dict[model]
-
-        debug_print(f"No cost data found for '{model}'. Using zero cost.")
+        # Otherwise fallback to empty => zero cost
+        debug_print(f"No cost data found for '{model}' in remote or fallback. Using zero cost.")
         return {
             "input_cost_per_token": 0.0,
             "output_cost_per_token": 0.0,
@@ -439,9 +198,10 @@ class Filter:
         Config.DEBUG = self.valves.debug
 
         self.user_cost_manager = UserCostManager(Config.USER_COST_FILE)
+        # fallback_dict is now empty => only remote used
         self.model_cost_manager = ModelCostManager(
             remote_url=Config.REMOTE_JSON_URL,
-            fallback_dict=DEFAULT_MODEL_PRICING
+            fallback_dict={}  # <--- now empty
         )
         self.cost_calculator = CostCalculator(self.user_cost_manager, self.model_cost_manager)
 
@@ -456,7 +216,6 @@ class Filter:
         lines = text.split("\n")
         cleaned = []
         for line in lines:
-            # If line starts with one of those roles, remove it
             if any(line.startswith(r) for r in roles):
                 cleaned.append(line.split(":", 1)[1].strip())
             else:
@@ -471,12 +230,11 @@ class Filter:
         __user__: Optional[dict] = None,
     ) -> dict:
         """
-        Called before the main generation step.
-        - Count input tokens
-        - Possibly store user email
-        - Mark start_time
+        Called before the main generation step:
+         - Count input tokens
+         - Possibly store user email
+         - Mark start_time
         """
-        # Let's parse messages from body
         messages = body.get("messages", [])
         content_str = "\n".join([m.get("content", "") for m in messages])
         cleaned_text = self._remove_roles(content_str)
@@ -485,10 +243,13 @@ class Filter:
         self.input_tokens = len(enc.encode(cleaned_text))
 
         if __event_emitter__:
-            await __event_emitter__({"type": "status", "data": {
-                "description": f"Input tokens: {self.input_tokens}",
-                "done": False
-            }})
+            await __event_emitter__({
+                "type": "status",
+                "data": {
+                    "description": f"Input tokens: {self.input_tokens}",
+                    "done": False
+                }
+            })
 
         # If there's user info
         if __user__ and "email" in __user__:
@@ -505,16 +266,15 @@ class Filter:
         __user__: Optional[dict] = None,
     ) -> dict:
         """
-        Called after the generation step.
-        - Count output tokens
-        - Compute cost
-        - Save cost
-        - Emit stats
+        Called after the generation step:
+         - Count output tokens
+         - Compute cost
+         - Save cost
+         - Emit stats
         """
         end_time = time.time()
         elapsed = end_time - self.start_time
 
-        # Count output tokens
         messages = body.get("messages", [])
         last_msg_content = messages[-1].get("content", "") if messages else ""
         enc = get_encoding_for_model(body.get("model", "unknown-model"))
@@ -548,7 +308,6 @@ class Filter:
             except Exception as e:
                 debug_print(f"Error updating user cost: {e}")
 
-        # Prepare stats
         total_tokens = self.input_tokens + output_tokens
         tokens_per_sec = total_tokens / elapsed if elapsed > 0 else 0.0
 
