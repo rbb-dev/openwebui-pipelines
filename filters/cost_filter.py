@@ -26,7 +26,6 @@ import tiktoken
 from cachetools import TTLCache, cached
 from pydantic import BaseModel, Field
 
-# REMOVED the entire DEFAULT_MODEL_PRICING dictionary.
 
 class Config:
     DATA_DIR = "data"
@@ -198,7 +197,6 @@ class CostCalculator:
 
 class Filter:
     class Valves(BaseModel):
-        priority: int = Field(default=15)
         compensation: float = Field(
             default=1.0, description="Price multiplier"
         )
