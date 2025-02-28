@@ -14,7 +14,7 @@ Install these integrations directly from OpenWebUI:
 - **DeepSeek Integration**: [Install DeepSeek Models](https://openwebui.com/f/pescheckbram/deepseek_intergration_chat)
 - **Cost Tracker**: [Install Cost Filter](https://openwebui.com/f/pescheckbram/live_cost_tracker_when_chatting)
 
-Find all my submissions at [my OpenWebUI profile](https://openwebui.com/u/brammittendorff).
+Find all my submissions at [my OpenWebUI profile](https://openwebui.com/u/pescheckbram).
 
 ## Features Overview
 
