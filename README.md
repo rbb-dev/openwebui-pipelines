@@ -10,9 +10,9 @@ This repository provides three powerful integrations for [OpenWebUI](https://ope
 
 Install these integrations directly from OpenWebUI:
 
-- **Anthropic Integration**: [Install Claude Models](https://openwebui.com/f/brammittendorff/anthropic_integration_chat)
-- **DeepSeek Integration**: [Install DeepSeek Models](https://openwebui.com/f/brammittendorff/deepseek_intergration_chat)
-- **Cost Tracker**: [Install Cost Filter](https://openwebui.com/f/brammittendorff/live_cost_tracker_when_chatting)
+- **Anthropic Integration**: [Install Claude Models](https://openwebui.com/f/pescheckbram/anthropic_integration_chat_and_scan_image)
+- **DeepSeek Integration**: [Install DeepSeek Models](https://openwebui.com/f/pescheckbram/deepseek_intergration_chat)
+- **Cost Tracker**: [Install Cost Filter](https://openwebui.com/f/pescheckbram/live_cost_tracker_when_chatting)
 
 Find all my submissions at [my OpenWebUI profile](https://openwebui.com/u/brammittendorff).
 
