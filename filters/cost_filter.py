@@ -136,21 +136,35 @@ class ModelCostManager:
 
     def get_model_data(self, model: str) -> dict:
         """
-        Return the cost data for a specific model. 
-        1) Try remote data 
-        2) If not found, fallback to empty => zero cost
+        Return the cost data for a specific model with improved matching.
+        1) Try exact match in remote data
+        2) Try partial match if exact match fails
+        3) If not found, fallback to empty => zero cost
         """
         if not self.cached_data:
             with self._lock:
                 if not self.cached_data:
                     self.cached_data = self.fetch_remote_data()
+                    debug_print(f"Loaded model pricing data with {len(self.cached_data)} models")
+                    debug_print(f"Available models: {list(self.cached_data.keys())[:5]}...")
 
-        # If remote data is found and has the model
+        # First try exact match
         if self.cached_data and model in self.cached_data:
+            debug_print(f"Found exact match for model '{model}'")
             return self.cached_data[model]
-
+        
+        # If exact match fails, try to find a partial match
+        # This handles cases where model names differ slightly
+        if self.cached_data:
+            # Try to match the model name without version numbers or prefixes
+            base_model = model.split('-')[0] if '-' in model else model
+            for key in self.cached_data.keys():
+                if base_model in key:
+                    debug_print(f"Found partial match for '{model}' using '{key}'")
+                    return self.cached_data[key]
+                
         # Otherwise fallback to empty => zero cost
-        debug_print(f"No cost data found for '{model}' in remote or fallback. Using zero cost.")
+        debug_print(f"No cost data found for '{model}' in remote data. Using zero cost.")
         return {
             "input_cost_per_token": 0.0,
             "output_cost_per_token": 0.0,
