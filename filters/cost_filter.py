@@ -339,12 +339,29 @@ class Filter:
         )
         stats_list.append(cost_str)
 
-        stats_string = " | ".join(stats_list)
-
-        if __event_emitter__:
-            await __event_emitter__({"type": "status", "data": {
-                "description": stats_string,
-                "done": True
-            }})
+        stats_str = " | ".join(stats_list)
+                
+        if (
+            "assistant_message" in body
+            and body["assistant_message"].get("role") == "assistant"
+        ):
+            m = body["assistant_message"]
+            m["content"] = (
+                m["content"].rstrip() + f"\n\n---\n**Transaction Cost:** {stats_str}"
+            )
+        else:
+            # 8b) fallback olarak messages listesindeki son assistant
+            for m in reversed(body.get("messages", [])):
+                if m.get("role") == "assistant":
+                    m["content"] = (
+                        m["content"].rstrip()
+                        + f"\n\n---\n**Transaction Cost:** {stats_str}"
+                    )
+                    break
+        #if __event_emitter__:
+        #    await __event_emitter__({"type": "status", "data": {
+        #        "description": stats_string,
+        #        "done": True
+        #    }})
 
         return body
