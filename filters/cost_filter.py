@@ -333,9 +333,7 @@ class Filter:
 
         # format cost
         cost_str = (
-            f"${total_cost:.2f}"
-            if float(total_cost) < float(Config.DECIMALS)
-            else f"${total_cost:.6f}"
+            f"${total_cost:.6f}"
         )
         stats_list.append(cost_str)
 
