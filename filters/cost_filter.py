@@ -35,7 +35,7 @@ class Config:
     # Use the new remote JSON with model pricing
     REMOTE_JSON_URL = (
         "https://raw.githubusercontent.com/"
-        "brammittendorff/openwebui-pipelines/refs/heads/main/json/model_pricing.json"
+        "/rbb-dev/openwebui-pipelines/refs/heads/main/json/model_pricing.json"
     )
 
     CACHE_TTL = 432000  # e.g., 5 days
